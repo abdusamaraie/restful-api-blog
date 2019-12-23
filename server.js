@@ -1,12 +1,14 @@
 var express = require("express"),
   bodyParser = require("body-parser"),
   methodOverride = require("method-override"),
+  expressSanitizer = require("express-sanitizer"),
   mongoose = require("mongoose"),
   app = express();
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSanitizer());
 app.use(methodOverride("_method"));
 
 //config mongo
@@ -51,6 +53,7 @@ app.get("/blogs", (req, res) => {
 //CREATE
 app.post("/blogs", (req, res) => {
   //create a blog post
+  req.body.blog.body = req.sanitizer(req.body.blog.body);
   Blog.create(req.body.blog, (err, newPost) => {
     if (err) {
       res.render("new");
@@ -60,11 +63,11 @@ app.post("/blogs", (req, res) => {
     }
   });
 });
-//NEW
+//NEW - show form to create new post
 app.get("/blogs/new", (req, res) => {
   res.render("new");
 });
-//SHOW
+//SHOW - show single post
 app.get("/blogs/:id/show", (req, res) => {
   Blog.findById(req.params.id, (err, foundBlog) => {
     if (err) {
@@ -86,6 +89,7 @@ app.get("/blogs/:id/edit", (req, res) => {
 });
 //UPDATE
 app.put("/blogs/:id", (req, res) => {
+  req.body.blog.body = req.sanitizer(req.body.blog.body);
   Blog.findByIdAndUpdate(req.params.id, req.body.blog, (err, updatedBlog) => {
     if (err) {
       res.redirect("/blogs");
@@ -95,7 +99,15 @@ app.put("/blogs/:id", (req, res) => {
   });
 });
 //DELETE
-app.delete("/blogs/:id", (req, res) => {});
+app.delete("/blogs/:id", (req, res) => {
+  Blog.findByIdAndRemove(req.params.id, err => {
+    if (err) {
+      res.redirect("/blogs");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
 
 app.listen(3000, () => {
   console.log("server running on port 3000!!");
