@@ -13,8 +13,9 @@
         <span><%= blog.created.toDateString() %></span>
       </div>
       <div class="description">
-        <p><%- blog.body</p>
+        <p><%- blog.body %></p>
       </div>
+      <a class="ui big black button" href="/blogs/<%= blog._id %>/edit">Edit</a>
     </div>
   </div>
 </div>
