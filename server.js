@@ -63,7 +63,15 @@ app.get("/blogs/new", (req, res) => {
   res.render("new");
 });
 //SHOW
-app.get("/blogs/:id/show", (req, res) => {});
+app.get("/blogs/:id/show", (req, res) => {
+  Blog.findById(req.params.id, (err, foundBlog) => {
+    if (err) {
+      res.render("/blogs");
+    } else {
+      res.render("show", { blog: foundBlog });
+    }
+  });
+});
 //EDIT
 app.get("/blogs/:id/edit", (req, res) => {});
 //UPDATE
